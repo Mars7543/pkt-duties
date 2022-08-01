@@ -1,6 +1,6 @@
 import { initializeApp, getApp, FirebaseOptions } from 'firebase/app'
-import { AuthError, getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
 
 const firebaseConfig = {
     apiKey: 'AIzaSyAykX1yK5B1-gw_bv28Kjcvnma9R0PniHU',
@@ -33,23 +33,24 @@ export async function signInWithGoogle() {
     try {
         const res = await signInWithPopup(auth, googleAuthProvider)
 
-        const email = res?.user?.email
-        const domain = email?.split('@')[1]
+        const [netid, domain] = res.user.email?.split('@') || ['', '']
         if (!domain || domain != CORNELL_DOMAIN) {
             await signOut(auth)
-            return { username: null, error: 'Please sign in with cornell email.' }
+            return { username: null, error: 'Please sign in with cornell email' }
         }
 
         // check if user exists with given email
-        // if (!userExists) {
-        //     await signOut(auth)
-        //     return { error : 'No user exists with the given email.' }
-        // }
+        const userRef = doc(firestore, 'users', netid)
+        const userSnap = await getDoc(userRef)
+        if (!userSnap.exists()) {
+            await signOut(auth)
+            return { error: 'No user exists with given email' }
+        }
 
         return { displayName: res.user.displayName?.split(' ')[0], error: null }
     } catch (err) {
         if (err.code === ERR_POPUP_CLOSED) return { error: null }
-        return { error: 'Error signing in. Try again later.' }
+        return { error: 'Error signing in, try again later' }
     }
 }
 
