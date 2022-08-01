@@ -1,0 +1,31 @@
+/* @import-normalize; */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600&display=swap');
+
+* {
+    font-family: 'Quicksand', sans-serif;
+}
+
+// Layout Styles
+.page {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex-grow: 1;
+}
+
+footer {
+    flex-shrink: 1;
+}
+
+.text-shadow {
+    text-shadow: 0.4rem 0.2rem 0.4rem rgb(0 0 0 / 40%);
+}
