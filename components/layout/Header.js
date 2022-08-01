@@ -70,8 +70,14 @@ const SignInBtn = () => {
             className='flex items-center gap-2 text-white text-2xl cursor-pointer'
             onClick={signIn}
         >
-            <p className='text-shadow'>Sign In</p>
-            <MdLogin className='w-[30px] h-[30px] drop-shadow-xl shadow-black' />
+            {signInLoading && <p className='text-shadow'>Loading...</p>}
+
+            {!signInLoading && (
+                <>
+                    <p className='text-shadow'>Sign In</p>
+                    <MdLogin className='w-[30px] h-[30px] drop-shadow-xl shadow-black' />
+                </>
+            )}
         </div>
     )
 }
