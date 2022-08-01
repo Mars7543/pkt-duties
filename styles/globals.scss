@@ -9,6 +9,12 @@
     font-family: 'Quicksand', sans-serif;
 }
 
+@layer {
+    main {
+        @apply bg-gray-50;
+    }
+}
+
 // Layout Styles
 .page {
     width: 100vw;

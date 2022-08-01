@@ -59,10 +59,11 @@ const SignInBtn = () => {
         if (signInLoading) return
 
         setSignInLoading(true)
-        const { error } = await signInWithGoogle()
+        const { displayName, error } = await signInWithGoogle()
         setSignInLoading(false)
 
         if (error) toast.error(error)
+        else toast.success(`Welcome Back, ${displayName}`)
     }
 
     return (
@@ -87,6 +88,7 @@ const SignOutBtn = ({ name }) => {
 
     const signOutAndReload = () => {
         signOut(auth)
+        toast.success('Logged Out')
         // router.reload()
     }
 

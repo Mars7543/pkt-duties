@@ -37,7 +37,7 @@ export async function signInWithGoogle() {
         const domain = email?.split('@')[1]
         if (!domain || domain != CORNELL_DOMAIN) {
             await signOut(auth)
-            return { error: 'Please sign in with cornell email.' }
+            return { username: null, error: 'Please sign in with cornell email.' }
         }
 
         // check if user exists with given email
@@ -46,7 +46,7 @@ export async function signInWithGoogle() {
         //     return { error : 'No user exists with the given email.' }
         // }
 
-        return { error: null }
+        return { displayName: res.user.displayName?.split(' ')[0], error: null }
     } catch (err) {
         if (err.code === ERR_POPUP_CLOSED) return { error: null }
         return { error: 'Error signing in. Try again later.' }

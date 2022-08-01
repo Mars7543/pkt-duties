@@ -12,10 +12,11 @@ const AuthLogin = (props) => {
 
     const signIn = async () => {
         setSignInLoading(true)
-        const { error } = await signInWithGoogle()
+        const { displayName, error } = await signInWithGoogle()
         setSignInLoading(false)
 
         if (error) toast.error(error)
+        else toast.success(`Welcome Back, ${displayName}`)
     }
 
     if (loading) {
