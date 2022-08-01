@@ -5,7 +5,7 @@ const Footer = () => {
         <footer className='flex justify-between items-center px-4 w-full h-16 bg-primary'>
             {/* Left Side */}
             <div className='flex text-white'>
-                <p>Phi Kapp Tau - Cornell University</p>
+                <p>Phi Kappa Tau - Cornell University</p>
             </div>
 
             {/* Middle */}

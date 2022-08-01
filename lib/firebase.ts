@@ -1,5 +1,5 @@
 import { initializeApp, getApp, FirebaseOptions } from 'firebase/app'
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
+import { AuthError, getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -26,19 +26,18 @@ const firebaseApp = createFirebaseApp(firebaseConfig)
 
 // auth exports
 export const auth = getAuth(firebaseApp)
-export const googleAuthProvider = new GoogleAuthProvider()
-googleAuthProvider.setCustomParameters({ hd: CORNELL_DOMAIN })
+export const googleAuthProvider = new GoogleAuthProvider().setCustomParameters({ hd: CORNELL_DOMAIN })
 
+const ERR_POPUP_CLOSED = 'auth/popup-closed-by-user'
 export async function signInWithGoogle() {
     try {
         const res = await signInWithPopup(auth, googleAuthProvider)
-        console.log(res)
 
         const email = res?.user?.email
         const domain = email?.split('@')[1]
         if (!domain || domain != CORNELL_DOMAIN) {
             await signOut(auth)
-            return { error: 'Must login with cornell email.' }
+            return { error: 'Please sign in with cornell email.' }
         }
 
         // check if user exists with given email
@@ -46,8 +45,10 @@ export async function signInWithGoogle() {
         //     await signOut(auth)
         //     return { error : 'No user exists with the given email.' }
         // }
+
+        return { error: null }
     } catch (err) {
-        console.log(err)
+        if (err.code === ERR_POPUP_CLOSED) return { error: null }
         return { error: 'Error signing in. Try again later.' }
     }
 }

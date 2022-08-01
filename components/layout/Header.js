@@ -8,6 +8,8 @@ import { useContext, useState } from 'react'
 import { UserContext } from '@lib/context'
 import { useRouter } from 'next/router'
 
+import toast from 'react-hot-toast'
+
 const Header = () => {
     const { user, loading } = useContext(UserContext)
 
@@ -34,20 +36,39 @@ const Header = () => {
             {/* Auth Status */}
             <div className='flex items-center gap-2 text-white text-2xl'></div>
 
+            {/* Loading Auth State */}
+            {!user && loading && (
+                <div className='flex items-center gap-2 text-white text-2xl cursor-pointer'>
+                    <p className='text-shadow'>Loading...</p>
+                </div>
+            )}
+
             {/* User Not Signed In */}
             {!user && !loading && <SignInBtn />}
 
             {/* User Logged In */}
-            {user && <SignOutBtn name={user.name} />}
+            {user && !loading && <SignOutBtn name={user.name} />}
         </div>
     )
 }
 
 const SignInBtn = () => {
+    const [signInLoading, setSignInLoading] = useState(false)
+
+    const signIn = async () => {
+        if (signInLoading) return
+
+        setSignInLoading(true)
+        const { error } = await signInWithGoogle()
+        setSignInLoading(false)
+
+        if (error) toast.error(error)
+    }
+
     return (
         <div
             className='flex items-center gap-2 text-white text-2xl cursor-pointer'
-            onClick={signInWithGoogle}
+            onClick={signIn}
         >
             <p className='text-shadow'>Sign In</p>
             <MdLogin className='w-[30px] h-[30px] drop-shadow-xl shadow-black' />

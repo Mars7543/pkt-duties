@@ -20,5 +20,6 @@ export type UserDoc = {
 export interface UserData {
     googleUser: User | null | undefined,
     user: DocumentData | null | undefined,
-    loading: boolean
+    loading: boolean,
+    error: any
 }

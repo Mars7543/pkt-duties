@@ -1,11 +1,13 @@
 import type { NextPage } from 'next'
 
-import Header from '@components/layout/Header'
+import AuthLogin from '@components/auth/AuthLogin'
 
 const Home: NextPage = () => {
     return (
         <main>
-            <h1>Home</h1>
+            <AuthLogin>
+                <h1>Home</h1>
+            </AuthLogin>
         </main>
     )
 }
