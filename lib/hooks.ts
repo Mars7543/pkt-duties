@@ -5,8 +5,6 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { useState, useEffect } from 'react'
 import { UserData } from 'types/user'
 
-import { toast } from 'react-hot-toast'
-
 export const useUserData = (): UserData => {
     const [googleUser, error] = useAuthState(auth)
     const [loading, setLoading] = useState(false)
@@ -27,6 +25,8 @@ export const useUserData = (): UserData => {
             setLoading(false)
             setUser(undefined)
         }
+
+        return unsubscribe
     }, [googleUser])
 
     return { googleUser, user, loading, error }

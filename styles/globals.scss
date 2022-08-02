@@ -26,6 +26,10 @@
 
 main {
     flex-grow: 1;
+    padding: 50px 0;
+
+    display: flex;
+    flex-direction: column;
 }
 
 footer {
@@ -34,4 +38,8 @@ footer {
 
 .text-shadow {
     text-shadow: 0.4rem 0.2rem 0.4rem rgb(0 0 0 / 40%);
+}
+
+.text-shadow-light {
+    text-shadow: 0.1rem 0.05rem 0.5rem rgb(0 0 0 / 40%);
 }

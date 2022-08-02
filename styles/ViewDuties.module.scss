@@ -1,0 +1,10 @@
+@layer {
+    .duty_card {
+        box-shadow: 0 0.15rem 0.5rem rgb(0 0 0 / 40%);
+        @apply md:w-[275px] xl:w-[350px] 2xl:w-[425px] bg-white flex flex-col items-center pt-4 px-[20px];
+    }
+
+    .duty_card div {
+        @apply w-full;
+    }
+}

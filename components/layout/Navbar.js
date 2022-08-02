@@ -1,4 +1,6 @@
 import Link from 'next/link'
+
+import { ThreeDots } from 'react-loader-spinner'
 import { MdLogin, MdLogout } from 'react-icons/md'
 
 import { auth, signInWithGoogle } from '@lib/firebase'
@@ -10,7 +12,7 @@ import { useRouter } from 'next/router'
 
 import toast from 'react-hot-toast'
 
-const Header = () => {
+const Navbar = () => {
     const { user, loading } = useContext(UserContext)
 
     return (
@@ -19,7 +21,7 @@ const Header = () => {
             <div className='flex items-center gap-5'>
                 <Link href={'/'}>
                     <img
-                        src='./PKT_COA.png'
+                        src='/PKT_COA.png'
                         alt='PKT Coat of Arms'
                         width={40}
                         height={50}
@@ -39,7 +41,15 @@ const Header = () => {
             {/* Loading Auth State */}
             {!user && loading && (
                 <div className='flex items-center gap-2 text-white text-2xl cursor-pointer'>
-                    <p className='text-shadow'>Loading...</p>
+                    <p className='flex items-center justify-center gap-3 text-shadow'>
+                        <span>Loading</span>
+                        <ThreeDots
+                            wrapperStyle={{ marginTop: '4px' }}
+                            color='#FFFFFF'
+                            height={25}
+                            width={45}
+                        />
+                    </p>
                 </div>
             )}
 
@@ -63,15 +73,25 @@ const SignInBtn = () => {
         setSignInLoading(false)
 
         if (error) toast.error(error)
-        else toast.success(`Welcome Back, ${displayName}`)
+        else if (displayName) toast.success(`Welcome Back, ${displayName}`)
     }
 
     return (
         <div
             className='flex items-center gap-2 text-white text-2xl cursor-pointer'
-            onClick={signIn}
+            onClick={signInLoading ? () => {} : signIn}
         >
-            {signInLoading && <p className='text-shadow'>Loading...</p>}
+            {signInLoading && (
+                <p className='flex items-center justify-center gap-3 text-shadow'>
+                    <span>Loading</span>
+                    <ThreeDots
+                        wrapperStyle={{ marginTop: '4px' }}
+                        color='#FFFFFF'
+                        height={25}
+                        width={45}
+                    />
+                </p>
+            )}
 
             {!signInLoading && (
                 <>
@@ -103,4 +123,4 @@ const SignOutBtn = ({ name }) => {
     )
 }
 
-export default Header
+export default Navbar
