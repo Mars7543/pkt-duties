@@ -16,7 +16,7 @@ const Navbar = () => {
     const { user, loading } = useContext(UserContext)
 
     return (
-        <div className='flex justify-between items-center px-6 w-full h-20 bg-primary'>
+        <div className='flex shrink-0 justify-between items-center px-6 w-full h-20 h-min-20 bg-primary'>
             {/* Icon + Home */}
             <div className='flex items-center gap-5'>
                 <Link href={'/'}>
@@ -41,7 +41,7 @@ const Navbar = () => {
             {/* Loading Auth State */}
             {!user && loading && (
                 <div className='flex items-center gap-2 text-white text-2xl cursor-pointer'>
-                    <p className='flex items-center justify-center gap-3 text-shadow'>
+                    <div className='flex items-center justify-center gap-3 text-shadow'>
                         <span>Loading</span>
                         <ThreeDots
                             wrapperStyle={{ marginTop: '4px' }}
@@ -49,7 +49,7 @@ const Navbar = () => {
                             height={25}
                             width={45}
                         />
-                    </p>
+                    </div>
                 </div>
             )}
 
@@ -82,7 +82,7 @@ const SignInBtn = () => {
             onClick={signInLoading ? () => {} : signIn}
         >
             {signInLoading && (
-                <p className='flex items-center justify-center gap-3 text-shadow'>
+                <div className='flex items-center justify-center gap-3 text-shadow'>
                     <span>Loading</span>
                     <ThreeDots
                         wrapperStyle={{ marginTop: '4px' }}
@@ -90,7 +90,7 @@ const SignInBtn = () => {
                         height={25}
                         width={45}
                     />
-                </p>
+                </div>
             )}
 
             {!signInLoading && (

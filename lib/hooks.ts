@@ -1,14 +1,17 @@
-import { auth, firestore, googleAuthProvider } from './firebase'
-import { signInWithPopup, signOut, User } from 'firebase/auth'
-import { doc, DocumentData, onSnapshot } from 'firebase/firestore'
+import { auth, firestore, usersCollection } from './firebase'
+import { doc, DocumentData, getDocs, onSnapshot, orderBy, query } from 'firebase/firestore'
+
+import { getDutiesByDays } from '@lib/queries'
+
 import { useAuthState } from 'react-firebase-hooks/auth'
+
 import { useState, useEffect } from 'react'
-import { UserData } from 'types/user'
+import { Duty, DutyType, User, UserData } from './types'
 
 export const useUserData = (): UserData => {
     const [googleUser, error] = useAuthState(auth)
     const [loading, setLoading] = useState(false)
-    const [user, setUser] = useState<DocumentData | undefined>(undefined)
+    const [user, setUser] = useState<User | undefined>(undefined)
 
     useEffect(() => {
         let unsubscribe
@@ -16,7 +19,7 @@ export const useUserData = (): UserData => {
         if (googleUser) {
             setLoading(true)
             const netid = googleUser?.email?.split('@')[0] || ''
-            const ref = doc(firestore, 'users', netid)
+            const ref = doc(usersCollection, netid)
             unsubscribe = onSnapshot(ref, doc => {
                 setLoading(false)
                 setUser(doc.data())
@@ -30,4 +33,57 @@ export const useUserData = (): UserData => {
     }, [googleUser])
 
     return { googleUser, user, loading, error }
+}
+
+export const useDutiesByDays = (dutyType: DutyType, days: Date[], refreshDate: Date, refreshToken: number) => {
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<any>(undefined)
+    const [duties, setDuties] = useState<Duty[][]>([])
+
+    useEffect(() => {
+        setLoading(true)
+        const fetchDuties = async () => {
+            try {
+                const duties = await getDutiesByDays(dutyType, days)
+
+                setDuties(duties)
+            } catch (err) {
+                console.log(err)
+
+                setError('Error loading duties.')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchDuties()
+    }, [refreshDate, refreshToken])
+
+    return { loading, error, duties }
+}
+
+export const useUsers = (order: string = 'name'): { loading: boolean, error: any, users: User[] } => {
+    const [users, setUsers] = useState<User[]>([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<any>()
+
+    useEffect(() => {
+        setLoading(true)
+        const fetchUser = async () => {
+            try {
+                const q = query(usersCollection, orderBy(order, 'asc'))
+                const users = (await getDocs(q)).docs.map(d => d.data())
+
+                setUsers(users)
+            } catch (err) {
+                setError(err)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchUser()
+    }, [])
+
+    return { loading, error, users }
 }

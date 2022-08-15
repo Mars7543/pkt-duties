@@ -16,7 +16,7 @@ const Home: NextPage = () => {
                     <Link href={`/duties/${user?.netid}`} passHref={true}>
                         <a className='cursor-pointer'>My Duties</a>
                     </Link>
-                    <Link href='/duties/assign-duties' passHref={true}>
+                    <Link href='/duties/assign?type=waiter' passHref={true}>
                         <a className='cursor-pointer'>Assign Duties</a>
                     </Link>
                 </div>

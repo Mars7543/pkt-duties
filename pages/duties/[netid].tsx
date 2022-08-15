@@ -4,6 +4,8 @@ import AuthLogin from '@components/auth/AuthLogin'
 
 import styles from '@styles/ViewDuties.module.scss'
 
+import { useRouter } from 'next/router'
+
 const ViewDutiesPage: NextPage = () => {
     interface DutyNames {
         [index: string]: string
@@ -43,6 +45,7 @@ const ViewDutiesPage: NextPage = () => {
                 date: '9/14'
             }
         ],
+
         cleaning: [
             {
                 name: 'Dining Room Cleanup',
@@ -76,15 +79,16 @@ const ViewDutiesPage: NextPage = () => {
     return (
         <main className='text-gray-800'>
             <AuthLogin>
-                <div className='mx-auto w-[350px] text-center'>
-                    <h1 className='text-shadow-light text-5xl'>
-                        View My Duties
-                    </h1>
+                <div className='title-card'>
+                    <h1>View My Duties</h1>
                 </div>
 
                 <div className='mt-[50px] w-full flex flex-grow justify-evenly'>
                     {Object.keys(dutyNames).map((dutyKey: string) => (
-                        <div key={dutyKey} className={styles.duty_card}>
+                        <div
+                            key={dutyKey}
+                            className={`${styles.duty_card} box-shadow`}
+                        >
                             <h2 className='text-3xl'>{dutyNames[dutyKey]}</h2>
 
                             <div className='w-[80%] flex justify-between mt-5 pb-1 border-b border-solid border-gray-500'>

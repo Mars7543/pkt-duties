@@ -3,16 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 * {
     font-family: 'Quicksand', sans-serif;
-}
-
-@layer {
-    main {
-        @apply bg-gray-50;
-    }
 }
 
 // Layout Styles
@@ -36,10 +30,40 @@ footer {
     flex-shrink: 1;
 }
 
+// Utility styles
 .text-shadow {
-    text-shadow: 0.4rem 0.2rem 0.4rem rgb(0 0 0 / 40%);
+    text-shadow: 0.4rem 0.2rem 0.4rem rgba(25, 25, 25, 0.4);
 }
 
 .text-shadow-light {
-    text-shadow: 0.1rem 0.05rem 0.5rem rgb(0 0 0 / 40%);
+    text-shadow: 0.2rem 0.1rem 0.3rem rgba(152, 152, 152, 0.4);
+}
+
+.box-shadow {
+    box-shadow: 0 0.15rem 0.5rem rgb(0 0 0 / 40%);
+}
+
+.box-shadow-light {
+    box-shadow: 0 0.05rem 0.3rem rgb(0 0 0 / 40%);
+}
+
+@layer {
+    main {
+        @apply bg-gray-50;
+    }
+
+    .title-card {
+        @apply mx-auto w-[500px] bg-white box-shadow py-5 text-center text-5xl;
+        @extend .box-shadow;
+    }
+
+    .title-card-lg {
+        @extend .title-card;
+        @apply w-[600px] py-6;
+    }
+
+    .title-card-xl {
+        @extend .title-card;
+        @apply w-[650px] py-6;
+    }
 }

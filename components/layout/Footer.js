@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 const Footer = () => {
     return (
-        <footer className='flex justify-between items-center px-4 w-full h-16 bg-primary'>
+        <footer className='flex shrink-0 justify-between items-center px-4 w-full h-16 bg-primary'>
             {/* Left Side */}
             <div className='flex text-white'>
                 <p>Phi Kappa Tau - Cornell University</p>

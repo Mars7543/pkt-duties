@@ -1,6 +1,7 @@
 import { initializeApp, getApp, FirebaseOptions } from 'firebase/app'
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
-import { getFirestore, doc, getDoc } from 'firebase/firestore'
+import { getFirestore, doc, getDoc, DocumentData, CollectionReference, collection } from 'firebase/firestore'
+import { Class, Duty, User } from './types'
 
 const firebaseConfig = {
     apiKey: 'AIzaSyAykX1yK5B1-gw_bv28Kjcvnma9R0PniHU',
@@ -14,6 +15,7 @@ const firebaseConfig = {
 
 const CORNELL_DOMAIN = 'cornell.edu'
 
+// initialize firebase app
 function createFirebaseApp(config: FirebaseOptions) {
     try {
         return getApp()
@@ -23,6 +25,9 @@ function createFirebaseApp(config: FirebaseOptions) {
 }
 
 const firebaseApp = createFirebaseApp(firebaseConfig)
+
+// firestore exports
+export const firestore = getFirestore(firebaseApp)
 
 // auth exports
 export const auth = getAuth(firebaseApp)
@@ -54,5 +59,10 @@ export async function signInWithGoogle() {
     }
 }
 
-// firestore exports
-export const firestore = getFirestore(firebaseApp)
+// typed collections export
+const createCollection = <T = DocumentData>(name: string) =>
+    collection(firestore, name) as CollectionReference<T>
+
+export const usersCollection = createCollection<User>('users')
+export const classCollection = createCollection<Class>('classes')
+export const dutiesCollection = createCollection<Duty>('duties')
