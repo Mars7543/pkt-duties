@@ -66,4 +66,9 @@ footer {
         @extend .title-card;
         @apply w-[650px] py-6;
     }
+
+    .title-card-2xl {
+        @extend .title-card;
+        @apply w-[750px] py-7;
+    }
 }

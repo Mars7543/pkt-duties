@@ -11,5 +11,6 @@ export const UserContext = createContext<UserData>({
 export const DutyContext = createContext<DutyData>({
     dutyType: DutyType.waiter,
     users: [],
+    usersByClass: [],
     refreshUsers: () => { }
 })

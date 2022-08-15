@@ -94,7 +94,7 @@ const EditDutyModal: React.FC<EditDutyModalProps> = ({
         setUpdatingDuty(true)
 
         try {
-            await editDuty(duty._id, duty.type, dutyName, date, selectedUsers)
+            await editDuty(duty._id, dutyName, date, selectedUsers)
             refresh()
             toast.success('Duty updated succesfully!')
         } catch (err) {

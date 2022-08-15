@@ -1,9 +1,0 @@
-.box-shadow {
-    box-shadow: 0 0.15rem 0.5rem rgb(0 0 0 / 40%);
-}
-
-@layer {
-    .master_btn {
-        @apply w-[200px] py-2 text-xl text-white uppercase tracking-normal;
-    }
-}

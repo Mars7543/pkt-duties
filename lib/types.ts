@@ -16,7 +16,6 @@ export interface User {
     inHouse: boolean,
     position?: string,
 
-    duties: string[],
     credits: {
         waiter: number,
         cleaning: number,
@@ -32,7 +31,7 @@ export interface Class {
 
 export interface DutyDate {
     day: string, // MM-dd-yyyy (i.e. 08-24-2022)
-    time: Timestamp
+    time: Timestamp | Date
 }
 
 export interface Duty {
@@ -70,5 +69,6 @@ export interface UserData {
 export interface DutyData {
     dutyType: DutyType,
     users: User[],
+    usersByClass: UsersInClass[],
     refreshUsers: () => void
 }

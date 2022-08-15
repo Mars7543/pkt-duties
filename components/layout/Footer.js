@@ -15,22 +15,26 @@ const Footer = () => {
 
             {/* Right Side */}
             <div className='flex flex-col items-center text-gray-200'>
-                <Link href='mailto:mar436@cornell.edu' passHref={true}>
-                    <a
-                        className='transition-all hover:text-gray-300'
-                        target='_blank'
-                    >
-                        Miguel Roberts
-                    </a>
-                </Link>
-                <Link href='mailto:vcs25@cornell.edu' passHref={true}>
+                <div>
+                    <span>Created by </span>
+                    <Link href='mailto:mar436@cornell.edu' passHref={true}>
+                        <a
+                            className='transition-all hover:text-gray-300'
+                            target='_blank'
+                        >
+                            Miguel Roberts
+                        </a>
+                    </Link>
+                </div>
+
+                {/* <Link href='mailto:vcs25@cornell.edu' passHref={true}>
                     <a
                         className='transition-all hover:text-gray-300'
                         target='_blank'
                     >
                         Victoria Stephens
                     </a>
-                </Link>
+                </Link> */}
             </div>
         </footer>
     )

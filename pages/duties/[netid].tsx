@@ -1,90 +1,110 @@
-import type { NextPage } from 'next'
+import type {
+    GetServerSideProps,
+    GetServerSidePropsContext,
+    NextPage
+} from 'next'
 
 import AuthLogin from '@components/auth/AuthLogin'
 
-import styles from '@styles/ViewDuties.module.scss'
+import { getDutiesByUser } from '@lib/queries'
+import { User, Duty, DutyType } from '@lib/types'
+import { classNames } from '@lib/helpers'
+import { capitalize } from 'lodash'
+import { format } from 'date-fns'
+import { Fragment } from 'react'
 
-import { useRouter } from 'next/router'
+export const getServerSideProps: GetServerSideProps = async (
+    context: GetServerSidePropsContext
+) => {
+    const { netid } = context.params as { netid: string }
 
-const ViewDutiesPage: NextPage = () => {
-    interface DutyNames {
-        [index: string]: string
-    }
+    // check auth here
+    // checkAuth()
 
-    interface Duty {
-        name: string
-        date: string
-    }
+    const { error, user, duties } = await getDutiesByUser(netid)
 
-    interface Duties {
-        [index: string]: Array<Duty>
-    }
-
-    const dutyNames: DutyNames = {
-        waiter: 'Waiter Duties',
-        cleaning: 'Cleaning Duties',
-        social: 'Social Duties'
-    }
-
-    const duties: Duties = {
-        waiter: [
-            {
-                name: 'Dinner Waiter',
-                date: '7/2'
-            },
-            {
-                name: 'Dinner Waiter',
-                date: '7/7'
-            },
-            {
-                name: 'Dinner Waiter',
-                date: '8/12'
-            },
-            {
-                name: 'Dinner Waiter',
-                date: '9/14'
+    if (error) {
+        if (error === 404 || !user) return { notFound: true }
+        else
+            return {
+                props: {
+                    error: true,
+                    user,
+                    duties: { waiter: [], cleaning: [], social: [] }
+                }
             }
-        ],
-
-        cleaning: [
-            {
-                name: 'Dining Room Cleanup',
-                date: '7/12'
-            },
-            {
-                name: 'Kitchen Cleanup',
-                date: '8/3'
-            },
-            {
-                name: 'Basement Cleanup',
-                date: '8/20'
-            }
-        ],
-        social: [
-            {
-                name: 'Sober',
-                date: '7/23'
-            },
-            {
-                name: 'Setup',
-                date: '8/19'
-            },
-            {
-                name: 'Setup',
-                date: '9/1'
-            }
-        ]
     }
+
+    return {
+        props: { error: false, user, duties }
+    }
+}
+
+// w-[200px] py-2 text-xl text-white uppercase tracking-normal;
+
+const ViewDutiesPage: NextPage<{
+    error: boolean
+    user: User
+    duties: Record<DutyType, string[]>
+}> = ({ error, user, duties }) => {
+    if (error) return <main className='text-gray-800'>Error.</main>
+
+    const dutyTypes = Object.values(DutyType)
 
     return (
         <main className='text-gray-800'>
             <AuthLogin>
-                <div className='title-card'>
-                    <h1>View My Duties</h1>
+                <div className='text-4xl title-card-2xl'>
+                    <h1>Duties Assigned to {user.name}</h1>
                 </div>
 
                 <div className='mt-[50px] w-full flex flex-grow justify-evenly'>
-                    {Object.keys(dutyNames).map((dutyKey: string) => (
+                    {dutyTypes.map((dutyType) => (
+                        <div
+                            key={dutyType}
+                            className='box-shadow-light w-[400px] bg-white flex flex-col items-center pt-5 px-[20px]'
+                        >
+                            <h2 className='text-3xl'>{capitalize(dutyType)}</h2>
+
+                            <div className='min-w-[80%] grid grid-cols-2 mt-5 pb-1 border-b border-solid border-gray-500'>
+                                <p className='text-xl font-semibold'>
+                                    Duty Name
+                                </p>
+                                <p className='text-xl font-semibold place-self-end'>
+                                    Date
+                                </p>
+                            </div>
+
+                            <div className='mt-3 min-w-[80%] grid grid-cols-2 overflow-scroll'>
+                                {duties[dutyType].map((dutyStr, i) => {
+                                    const duty = JSON.parse(dutyStr) as Duty
+
+                                    console.log(duty)
+                                    const date = new Date(
+                                        duty.date.time as Date
+                                    )
+
+                                    return (
+                                        <Fragment key={`${i}`}>
+                                            <p className='place-self-start'>
+                                                {duty.name}
+                                            </p>
+                                            <p className='place-self-end'>
+                                                {format(date, 'M/d/yy')}
+                                            </p>
+                                        </Fragment>
+                                    )
+                                })}
+
+                                {duties[dutyType].length === 0 && (
+                                    <p className='col-span-2 place-self-center'>
+                                        No Duties Assigned
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                    {/* {Object.keys(dutyNames).map((dutyKey: string) => (
                         <div
                             key={dutyKey}
                             className={`${styles.duty_card} box-shadow`}
@@ -108,7 +128,7 @@ const ViewDutiesPage: NextPage = () => {
                                 ))}
                             </div>
                         </div>
-                    ))}
+                    ))} */}
                 </div>
             </AuthLogin>
         </main>

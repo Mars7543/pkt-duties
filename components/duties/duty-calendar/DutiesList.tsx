@@ -4,8 +4,8 @@ import { classNames } from '@lib/helpers'
 import { add, eachDayOfInterval, format } from 'date-fns'
 import { useContext, useState } from 'react'
 
-import AddDutyModal from './duty-modal/AddDutyModal'
-import EditDutyModal from './duty-modal/EditDutyModal'
+import AddDutyModal from '../duty-modal/AddDutyModal'
+import EditDutyModal from '../duty-modal/EditDutyModal'
 import { useDutiesByDays } from '@lib/hooks'
 import { DutyContext } from '@lib/context'
 import { Duty } from '@lib/types'
@@ -132,7 +132,7 @@ const DutiesList: React.FC<DutiesListProps> = ({ date, className }) => {
                                 className='grid grid-cols-2'
                             >
                                 <h2 className='text-lg font-medium'>
-                                    {format(day, 'EEEE, MMM dd')}
+                                    {format(day, 'EEEE MMM dd')}
                                 </h2>
 
                                 <div className='place-self-end gap-1 flex flex-row-reverse'>
@@ -152,7 +152,7 @@ const DutiesList: React.FC<DutiesListProps> = ({ date, className }) => {
                             <div className='mt-3 space-y-1'>
                                 {/* No Duty Assigned */}
                                 {dutiesList.length === 0 && (
-                                    <p className='font-semibold text-sm text-center'>
+                                    <p className='text-sm text-center'>
                                         No Duties Assigned
                                     </p>
                                 )}
@@ -173,7 +173,7 @@ const DutiesList: React.FC<DutiesListProps> = ({ date, className }) => {
                                             (name, idx) => (
                                                 <p
                                                     key={idx}
-                                                    className='text-sm text-center w-[120px] place-self-start'
+                                                    className='text-sm text-center w-[120px] place-self-end'
                                                 >
                                                     {name}
                                                 </p>
