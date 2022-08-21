@@ -5,6 +5,8 @@ import { signInWithGoogle } from '@lib/firebase'
 
 import { ThreeDots } from 'react-loader-spinner'
 import { toast } from 'react-hot-toast'
+import { getUserAssignType, isAssigner } from '@lib/helpers'
+import Link from 'next/link'
 
 const AuthLogin = (props) => {
     const { user, loading } = useContext(UserContext)
@@ -66,6 +68,38 @@ const AuthLogin = (props) => {
     }
 
     if (user && !loading) {
+        // for duty assign pages
+        const assignType = props.assignType
+        const assigners = props.assigners
+        const netid = props.netid
+
+        const invalidAssignType =
+            assignType && getUserAssignType(user) !== assignType
+        const notAssigner = assigners && !isAssigner(user)
+        const invalidNetid = netid && user.netid !== netid
+
+        if (
+            invalidAssignType ||
+            notAssigner ||
+            (invalidNetid && notAssigner) ||
+            (invalidNetid && !assigners)
+        ) {
+            toast.error('You do not have permission to access this page.')
+            return (
+                <div className='flex flex-col items-center gap-5'>
+                    <h1 className='text-shadow-light text-4xl'>
+                        Invalid Permissions
+                    </h1>
+
+                    <Link href='/' passHref={true}>
+                        <a className='text-shadow-light text-xl font-medium'>
+                            Back to Home
+                        </a>
+                    </Link>
+                </div>
+            )
+        }
+
         return props.children
     }
 }

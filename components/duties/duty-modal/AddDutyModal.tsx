@@ -129,7 +129,7 @@ const AddDutyModal: React.FC<AddDutyModalProps> = ({
                                         </label>
                                         <input
                                             // className='text-md text-gray-900 border border-solid border-gray-500 rounded-md p-2 active:border-white focus:border-white'
-                                            className='text-md text-gray-500 rounded-md p-2 active:border-white focus:border-white box-shadow-light'
+                                            className='text-md text-gray-600 rounded-md p-2 active:border-white focus:border-white box-shadow-light'
                                             id='Duty Date'
                                             type='text'
                                             disabled={true}
@@ -176,6 +176,7 @@ const AddDutyModal: React.FC<AddDutyModalProps> = ({
 
                                 <AssignUsers
                                     className='mt-3 grid grid-cols-2 gap-8'
+                                    date={format(date, 'MM-dd-yyyy')}
                                     selectedUsers={selectedUsers}
                                     setSelectedUsers={setSelectedUsers}
                                     missingUsersError={missingUsers}

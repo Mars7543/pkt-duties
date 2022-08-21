@@ -11,15 +11,14 @@ import { User, Duty, DutyType } from '@lib/types'
 import { classNames } from '@lib/helpers'
 import { capitalize } from 'lodash'
 import { format } from 'date-fns'
-import { Fragment } from 'react'
+import { Fragment, useContext } from 'react'
+import { UserContext } from '@lib/context'
+import Metatags from '@components/layout/Metatags'
 
 export const getServerSideProps: GetServerSideProps = async (
     context: GetServerSidePropsContext
 ) => {
     const { netid } = context.params as { netid: string }
-
-    // check auth here
-    // checkAuth()
 
     const { error, user, duties } = await getDutiesByUser(netid)
 
@@ -53,7 +52,8 @@ const ViewDutiesPage: NextPage<{
 
     return (
         <main className='text-gray-800'>
-            <AuthLogin>
+            <Metatags title={`View ${user.name.split(' ')[0]}'s Duties`} />
+            <AuthLogin netid={user.netid} assigners={true}>
                 <div className='text-4xl title-card-2xl'>
                     <h1>Duties Assigned to {user.name}</h1>
                 </div>
@@ -79,7 +79,6 @@ const ViewDutiesPage: NextPage<{
                                 {duties[dutyType].map((dutyStr, i) => {
                                     const duty = JSON.parse(dutyStr) as Duty
 
-                                    console.log(duty)
                                     const date = new Date(
                                         duty.date.time as Date
                                     )
@@ -104,31 +103,6 @@ const ViewDutiesPage: NextPage<{
                             </div>
                         </div>
                     ))}
-                    {/* {Object.keys(dutyNames).map((dutyKey: string) => (
-                        <div
-                            key={dutyKey}
-                            className={`${styles.duty_card} box-shadow`}
-                        >
-                            <h2 className='text-3xl'>{dutyNames[dutyKey]}</h2>
-
-                            <div className='w-[80%] flex justify-between mt-5 pb-1 border-b border-solid border-gray-500'>
-                                <p className='font-bold'>Duty Name</p>
-                                <p className='font-bold'>Date</p>
-                            </div>
-
-                            <div className='w-[80%] mt-3 flex flex-col gap-2 overflow-scroll'>
-                                {duties[dutyKey].map(({ name, date }, i) => (
-                                    <div
-                                        key={`${i}${date}`}
-                                        className='flex justify-between mt-1'
-                                    >
-                                        <p>{name}</p>
-                                        <p>{date}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))} */}
                 </div>
             </AuthLogin>
         </main>

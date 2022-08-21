@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useContext, useEffect } from 'react'
+import React, { useState, Fragment, useEffect } from 'react'
 import { Dialog, Transition, Listbox } from '@headlessui/react'
 import { format } from 'date-fns'
 import { TailSpin } from 'react-loader-spinner'
@@ -7,9 +7,9 @@ import { Duty, User } from '@lib/types'
 import toast from 'react-hot-toast'
 import { deleteDuty as removeDuty, updateDuty as editDuty } from '@lib/queries'
 import AssignUsers from './AssignUsers'
-import { DutyContext } from '@lib/context'
 
 import { HiSelector } from 'react-icons/hi'
+import { Timestamp } from 'firebase/firestore'
 
 interface EditDutyModalProps {
     isOpen: boolean
@@ -41,7 +41,10 @@ const EditDutyModal: React.FC<EditDutyModalProps> = ({
 
         const duty = duties[0]
         setDuty(duty)
-        setDate(duty.date.time.toDate())
+
+        let time = duty.date.time as Timestamp
+        setDate(time.toDate())
+
         setDutyName(duty.name)
         setSelectedUsers(toUsers(duty.assigned_names))
 
@@ -70,7 +73,10 @@ const EditDutyModal: React.FC<EditDutyModalProps> = ({
     const selectDuty = (duty: Duty) => {
         setDuty(duty)
         setDutyName(duty.name)
-        setDate(duty.date.time.toDate())
+
+        let time = duty.date.time as Timestamp
+        setDate(time.toDate())
+
         setSelectedUsers(toUsers(duty.assigned_names))
     }
 
@@ -199,7 +205,7 @@ const EditDutyModal: React.FC<EditDutyModalProps> = ({
                                             Date
                                         </label>
                                         <input
-                                            className='text-md text-gray-500 rounded-md p-2 active:border-white focus:border-white box-shadow-light'
+                                            className='text-md text-gray-600 rounded-md p-2 active:border-white focus:border-white box-shadow-light'
                                             id='Duty Date'
                                             type='text'
                                             disabled={true}
@@ -246,6 +252,7 @@ const EditDutyModal: React.FC<EditDutyModalProps> = ({
 
                                 <AssignUsers
                                     className='mt-3 grid grid-cols-2 gap-8'
+                                    date={format(date, 'MM-dd-yyyy')}
                                     selectedUsers={selectedUsers}
                                     setSelectedUsers={setSelectedUsers}
                                     missingUsersError={missingUsers}

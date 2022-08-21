@@ -132,7 +132,7 @@ const DutiesList: React.FC<DutiesListProps> = ({ date, className }) => {
                                 className='grid grid-cols-2'
                             >
                                 <h2 className='text-lg font-medium'>
-                                    {format(day, 'EEEE MMM dd')}
+                                    {format(day, 'EEEE MMM d')}
                                 </h2>
 
                                 <div className='place-self-end gap-1 flex flex-row-reverse'>
@@ -161,7 +161,7 @@ const DutiesList: React.FC<DutiesListProps> = ({ date, className }) => {
                                 {dutiesList.map((duty, dutyIdx) => (
                                     <div
                                         key={dutyIdx}
-                                        className={`grid grid-flow-col justify-items-center grid-cols-${
+                                        className={`grid grid-flow-col align-middle justify-items-center grid-cols-${
                                             duty.assigned.length + 1
                                         }`}
                                     >

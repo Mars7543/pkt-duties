@@ -3,24 +3,33 @@ import { DocumentData, Timestamp } from "firebase/firestore"
 
 // model exports
 export interface User {
-    name: string,
+    name: string
 
-    netid: string,
-    email: string,
+    netid: string
+    email: string
     phone: number
 
     class: {
-        name: string,
+        name: string
         semester: string
     }
-    inHouse: boolean,
-    position?: string,
+    inHouse: boolean
+    position?: string
+
+    duties: DutyPreview[]
 
     credits: {
-        waiter: number,
-        cleaning: number,
+        waiter: number
+        cleaning: number
         social: number
     }
+
+    dutyExempt?: {
+        type: DutyType[]
+        reason: string
+    }
+
+    offCampus?: boolean
 }
 
 export interface Class {
@@ -30,26 +39,32 @@ export interface Class {
 }
 
 export interface DutyDate {
-    day: string, // MM-dd-yyyy (i.e. 08-24-2022)
+    day: string // MM-dd-yyyy (i.e. 08-24-2022)
     time: Timestamp | Date
 }
 
 export interface Duty {
-    _id: string,
+    _id: string
 
-    type: DutyType,
-    name: string,
-    date: DutyDate,
+    type: DutyType
+    name: string
+    date: DutyDate
 
-    assigned: string[],
+    assigned: string[]
     assigned_names: { [index: string]: string }
     credits: { [index: string]: number }
 }
 
+export interface DutyPreview {
+    _id: string
+    type: DutyType
+    day: string // MM-dd-yyyy (i.e. 08-24-2022)
+}
+
 export enum DutyType {
-    waiter = "waiter",
-    cleaning = "cleaning",
-    social = "social"
+    waiter = 'waiter',
+    cleaning = 'cleaning',
+    social = 'social'
 }
 
 // model function exports
@@ -60,15 +75,15 @@ export interface UsersInClass {
 
 // react types
 export interface UserData {
-    googleUser: GoogleUser | null | undefined,
-    user: User | null | undefined,
-    loading: boolean,
+    googleUser: GoogleUser | null | undefined
+    user: User | null | undefined
+    loading: boolean
     error: any
 }
 
 export interface DutyData {
-    dutyType: DutyType,
-    users: User[],
-    usersByClass: UsersInClass[],
+    dutyType: DutyType
+    users: User[]
+    usersByClass: UsersInClass[]
     refreshUsers: () => void
 }

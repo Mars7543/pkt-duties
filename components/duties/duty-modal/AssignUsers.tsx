@@ -8,6 +8,8 @@ import { MdDelete } from 'react-icons/md'
 interface AssignUsersProps {
     className?: string
 
+    date: string
+
     selectedUsers: User[]
     setSelectedUsers: (users: User[]) => void
 
@@ -17,6 +19,7 @@ interface AssignUsersProps {
 
 const AssignUsers: React.FC<AssignUsersProps> = ({
     className = '',
+    date,
     selectedUsers,
     setSelectedUsers,
     missingUsersError,
@@ -38,6 +41,16 @@ const AssignUsers: React.FC<AssignUsersProps> = ({
     useEffect(filterSelectedUsers, [selectedUsers])
 
     const selectUser = (user: User) => {
+        const dutyConflict = user.duties.find((duty) => duty.day === date)
+
+        if (
+            dutyConflict &&
+            !confirm(
+                `Duty conflict on ${dutyConflict.day}\n\n${user.name} has a ${dutyConflict.type} duty on this date.\nWould you still like to assign him?`
+            )
+        )
+            return
+
         setSelectedUsers(selectedUsers.concat(user))
         setMissingUsersError(selectedUsers.length === 0)
     }
@@ -114,7 +127,7 @@ const UsersSelect: React.FC<UserSelectProps> = ({
                     <Combobox.Options className='box-shadow-light mt-3 ring-1 bg-white ring-gray-500 rounded-md divide-y divide-gray-300 max-h-[252px] w-full overflow-scroll animate-enter absolute'>
                         {filteredUsers.map((user, idx) => (
                             <Combobox.Option
-                                className='h-[42px] p-2 pl-3 flex items-center justify-between cursor-pointer hover:bg-blue-400 hover:text-white transition-all first:rounded-t-md last:rounded-b-md'
+                                className='h-[42px] p-3 flex items-center justify-between cursor-pointer hover:bg-blue-400 hover:text-white transition-all first:rounded-t-md last:rounded-b-md'
                                 key={idx}
                                 value={user}
                             >

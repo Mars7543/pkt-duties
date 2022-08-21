@@ -7,19 +7,13 @@ import AuthLogin from '@components/auth/AuthLogin'
 import DutiesCalendar from '@components/duties/duty-calendar/DutiesCalendar'
 import ViewUsers from '@components/users/ViewUsers'
 
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 
 import { DutyType, User, UsersInClass } from '@lib/types'
-import { DutyContext } from '@lib/context'
+import { DutyContext, UserContext } from '@lib/context'
 import toast from 'react-hot-toast'
 import { capitalize } from 'lodash'
-
-// duty types with corresponding positions
-const dutyTypesPermissions: Record<DutyType, string> = {
-    waiter: 'Steward',
-    cleaning: 'Cleaning Manager',
-    social: 'Social Chair'
-}
+import Metatags from '@components/layout/Metatags'
 
 export const getServerSideProps: GetServerSideProps = async (
     context: GetServerSidePropsContext
@@ -29,12 +23,9 @@ export const getServerSideProps: GetServerSideProps = async (
     const dutyType = typeof type === 'string' ? type : ''
 
     // invalid query string
-    if (!Object.keys(dutyTypesPermissions).includes(dutyType))
+    if (!Object.values(DutyType).includes(dutyType as DutyType))
         return {
-            redirect: {
-                destination: '/',
-                permanent: false
-            }
+            notFound: true
         }
 
     // get users by class and all users filtered by credits of duty type 'dutyType'
@@ -46,8 +37,9 @@ export const getServerSideProps: GetServerSideProps = async (
             props: { dutyType, usersByClass, allUsers }
         }
     } catch (err) {
+        console.log(err)
         return {
-            props: { dutyType, error: err }
+            props: { dutyType, error: true }
         }
     }
 }
@@ -63,6 +55,8 @@ const AssignDutiesPage: NextPage<AssignDutiesPageProps> = ({
     usersByClass: groupedUsers,
     allUsers
 }) => {
+    const { user } = useContext(UserContext)
+
     const [view, setView] = useState('duty')
 
     const [users, setUsers] = useState<User[]>(allUsers || [])
@@ -85,7 +79,8 @@ const AssignDutiesPage: NextPage<AssignDutiesPageProps> = ({
 
     return (
         <main>
-            <AuthLogin>
+            <Metatags title='Assign Duties' />
+            <AuthLogin assignType={dutyType}>
                 <DutyContext.Provider
                     value={{ dutyType, users, usersByClass, refreshUsers }}
                 >
@@ -116,7 +111,7 @@ const AssignDutiesPage: NextPage<AssignDutiesPageProps> = ({
                     </div>
 
                     {/* Views */}
-                    <div className='mt-10'>
+                    <div className='mt-[52px]'>
                         {view === 'brother' ? (
                             <ViewUsers />
                         ) : (

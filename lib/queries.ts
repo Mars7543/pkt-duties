@@ -1,9 +1,10 @@
 import { customAlphabet } from "nanoid"
 import { dutiesCollection, firestore, usersCollection } from "./firebase"
-import { query, getDocs, where, orderBy, QuerySnapshot, Timestamp, setDoc, doc, deleteDoc, getDoc, increment, writeBatch, QueryDocumentSnapshot } from "firebase/firestore"
+import { query, getDocs, where, orderBy, QuerySnapshot, Timestamp, setDoc, doc, deleteDoc, getDoc, increment, writeBatch, QueryDocumentSnapshot, arrayUnion, arrayRemove } from "firebase/firestore"
 import { classCollection } from "./firebase"
 import { Duty, DutyDate, DutyType, User, UsersInClass } from "./types"
 import { format } from "date-fns"
+import { getUserAssignType } from "./helpers"
 
 const genId = (() => {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -13,6 +14,41 @@ const genId = (() => {
 })()
 
 // ========= USER QUERIES ========== \\
+// const addDutiesToUsers = async () => {
+//     const usersQUery = query(usersCollection)
+//     const user_ids = (await getDocs(usersQUery)).docs.map(d => d.data().netid)
+
+//     const batch = writeBatch(firestore)
+
+//     for (const netid of user_ids) {
+//         const userRef = doc(usersCollection, netid)
+//         batch.set(userRef, { duties: [] }, { merge: true })
+//     }
+
+//     await batch.commit()
+// }
+
+// const sanitizeUsers = async () => {
+//     console.log('starting function')
+
+//     const usersQUery = query(usersCollection)
+//     const users = (await getDocs(usersQUery)).docs.map(d => d.data())
+
+//     for (const user of users) {
+//         if (!user.name || !user.netid || !user.email || !user.phone || user.inHouse === undefined) {
+//             console.log(`${user.netid} | ${user.name} | is missing info`)
+//         }
+
+//         if (!user.credits || user.credits.waiter === undefined || !user.credits.social === undefined || !user.credits.cleaning === undefined) {
+//             console.log(`${user.netid} | ${user.name} | is missing credits info`)
+//         }
+
+//         if (!user.class || !user.class.name || !user.class.semester) {
+//             console.log(`${user.netid} | ${user.name} | is missing class info`)
+//         }
+//     }
+// }
+
 export const getUsersByClass = async (): Promise<UsersInClass[]> => {
     const classesQuery = query(classCollection, orderBy('index', 'asc'))
     const classes = (await getDocs(classesQuery)).docs.map(d => d.data())
@@ -31,16 +67,30 @@ export const getUsersByClass = async (): Promise<UsersInClass[]> => {
     return await Promise.all(usersByClass)
 }
 
+export const isDutyExempt = (user: User, type: DutyType): boolean => {
+    // pres or vp
+    if (user.position === 'President' || user.position === 'Vice President') return true
+    // off campus
+    if (user.offCampus) return true
+    // exempt from duties of that type
+    if (user.dutyExempt !== undefined && user.dutyExempt.type.indexOf(type) !== -1) return true
+    // position assigns duties of type {type}
+    // if (getUserAssignType(user) === type) return true
+
+    return false
+}
+
 export const getUsersByCredits = async (dutyType: DutyType): Promise<User[]> => {
     const usersQuery = query(usersCollection, orderBy(`credits.${dutyType}`, 'asc'))
     const users = (await getDocs(usersQuery)).docs.map(d => d.data())
 
-    return users
+    // filter out duty exempt users
+    return users.filter(user => !isDutyExempt(user, dutyType))
 }
 
 // ============ DUTY QUERIES ============ \\
 const dutySnapToDuties = (dutySnap: QuerySnapshot<Duty>): Duty[] => dutySnap.docs.map(duty => duty.data())
-const dutyToJSON = (duty: QueryDocumentSnapshot<Duty>): string => {
+const dutyToObj = (duty: QueryDocumentSnapshot<Duty>): Duty => {
     const dutyData = duty.data()
     const time = dutyData.date.time as Timestamp
     const date = {
@@ -48,11 +98,12 @@ const dutyToJSON = (duty: QueryDocumentSnapshot<Duty>): string => {
         time: time.toDate()
     }
 
-    return JSON.stringify({
+    return {
         ...duty.data(),
         date
-    })
+    }
 }
+const dutyToJSON = (duty: QueryDocumentSnapshot<Duty>): string => JSON.stringify(dutyToObj(duty))
 
 export const getDutiesByUser = async (netid: string): Promise<{ error: any, user?: User, duties?: Record<DutyType, string[]> }> => {
     try {
@@ -81,6 +132,14 @@ export const getDutiesByUser = async (netid: string): Promise<{ error: any, user
         console.log(err)
         return { error: err, user: undefined, duties: undefined }
     }
+}
+
+export const getDutiesByType = async (dutyType: DutyType, filterChecked?: boolean): Promise<Duty[]> => {
+    let dutiesQuery = query(dutiesCollection, orderBy('date.time', 'asc'))
+    // if (filterChecked) dutiesQuery = query(dutiesQuery, where('checked', '==', false))
+    const duties = (await getDocs(dutiesQuery)).docs.map(dutyToObj)
+
+    return duties
 }
 
 export const getDutiesByDays = async (dutyType: DutyType, days: Date[]): Promise<Duty[][]> => {
@@ -132,7 +191,11 @@ export const createDuty = async (type: DutyType, name: string, date: Date, assig
 
     for (const netid of assigned.assigned) {
         const userRef = doc(usersCollection, netid)
-        batch.update(userRef, `credits.${type}`, increment(assigned.credits[netid]))
+
+        batch.update(userRef, {
+            [`credits.${type}`]: increment(assigned.credits[netid]),
+            'duties': arrayUnion({ _id, type, day: dutyDate.day })
+        })
     }
 
     await batch.commit()
@@ -149,16 +212,28 @@ export const updateDuty = async (_id: string, name: string, date: Date, assigned
 
     if (!duty) return
 
+    const type = duty.type
+
     const batch = writeBatch(firestore)
 
     // remove duty credits from all previously assigned
     for (const netid of duty.assigned) {
-        batch.update(doc(usersCollection, netid), `credits.${duty.type}`, increment(-duty.credits[netid]))
+        const userRef = doc(usersCollection, netid)
+
+        batch.update(userRef, {
+            [`credits.${type}`]: increment(-duty.credits[netid]),
+            'duties': arrayRemove({ _id, type, day: dutyDate.day })
+        })
     }
 
     // add credits to everyone currently assigned
     for (const netid of assigned.assigned) {
-        batch.update(doc(usersCollection, netid), `credits.${duty.type}`, increment(assigned.credits[netid]))
+        const userRef = doc(usersCollection, netid)
+
+        batch.update(userRef, {
+            [`credits.${type}`]: increment(assigned.credits[netid]),
+            'duties': arrayUnion({ _id, type, day: dutyDate.day })
+        })
     }
 
     batch.update(dutyRef, {
@@ -170,19 +245,42 @@ export const updateDuty = async (_id: string, name: string, date: Date, assigned
     await batch.commit()
 }
 
-export const deleteDuty = async (id: string) => {
-    const dutyRef = doc(dutiesCollection, id)
+export const deleteDuty = async (_id: string) => {
+    const dutyRef = doc(dutiesCollection, _id)
 
     const duty = (await getDoc(dutyRef)).data()
     if (!duty) return
+
+    const type = duty.type
 
     const batch = writeBatch(firestore)
 
     batch.delete(dutyRef)
 
     for (const netid of duty.assigned) {
-        batch.update(doc(usersCollection, netid), `credits.${duty.type}`, increment(-duty.credits[netid]))
+        const userRef = doc(usersCollection, netid)
+
+        batch.update(userRef, {
+            [`credits.${type}`]: increment(-duty.credits[netid]),
+            'duties': arrayRemove({ _id, type, day: duty.date.day })
+        })
     }
+
+    await batch.commit()
+}
+
+export const updateUserDutyCredits = async (_id: string, netid: string, credits: number) => {
+    const dutyRef = doc(dutiesCollection, _id)
+    const duty = (await getDoc(dutyRef)).data()
+
+    if (!duty) throw Error('Duty does not exist.')
+
+    const userRef = doc(usersCollection, netid)
+
+    const batch = writeBatch(firestore)
+
+    batch.update(dutyRef, `credits.${netid}`, credits)
+    batch.update(userRef, `credits.${duty.type}`, increment(credits - duty.credits[netid]))
 
     await batch.commit()
 }
