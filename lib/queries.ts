@@ -75,7 +75,7 @@ export const isDutyExempt = (user: User, type: DutyType): boolean => {
     // exempt from duties of that type
     if (user.dutyExempt !== undefined && user.dutyExempt.type.indexOf(type) !== -1) return true
     // position assigns duties of type {type}
-    // if (getUserAssignType(user) === type) return true
+    if (getUserAssignType(user) === type) return true
 
     return false
 }
@@ -135,7 +135,7 @@ export const getDutiesByUser = async (netid: string): Promise<{ error: any, user
 }
 
 export const getDutiesByType = async (dutyType: DutyType, filterChecked?: boolean): Promise<Duty[]> => {
-    let dutiesQuery = query(dutiesCollection, orderBy('date.time', 'asc'))
+    let dutiesQuery = query(dutiesCollection, where('type', '==', dutyType), orderBy('date.time', 'asc'))
     // if (filterChecked) dutiesQuery = query(dutiesQuery, where('checked', '==', false))
     const duties = (await getDocs(dutiesQuery)).docs.map(dutyToObj)
 

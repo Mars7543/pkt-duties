@@ -46,58 +46,62 @@ exports.dutyCreated = functions.firestore
             }
         } catch (err) {
             console.log('Error notifying users on duty creation.')
-            console.log(err)
+            console.error(err)
+
+            throw err
         }
 
         return
     })
 
-exports.dutyUpdated = functions.firestore
-    .document('duties/${dutyID}')
-    .onUpdate(async (snapshot, context) => {
-        // ======= TWILIO SETUP ======== \\
-        const accountSid = process.env.TWILIO_ACCOUNT_SID
-        const authToken = process.env.TWILIO_AUTH_TOKEN
-        const messagingServiceSid = process.env.TWILIO_MESSAGING_SID
+// exports.dutyUpdated = functions.firestore
+//     .document('duties/${dutyID}')
+//     .onUpdate(async (snapshot, context) => {
+//         // ======= TWILIO SETUP ======== \\
+//         const accountSid = process.env.TWILIO_ACCOUNT_SID
+//         const authToken = process.env.TWILIO_AUTH_TOKEN
+//         const messagingServiceSid = process.env.TWILIO_MESSAGING_SID
 
-        const twilio = require('twilio')(accountSid, authToken)
-        const format = require('date-fns/format')
+//         const twilio = require('twilio')(accountSid, authToken)
+//         const format = require('date-fns/format')
 
-        // Notify Users
-        const duty = snapshot.data()
-        const assigned = duty.assigned
+//         // Notify Users
+//         const duty = snapshot.data()
+//         const assigned = duty.assigned
 
-        try {
-            for (const netid of assigned) {
-                const user = (
-                    await admin.firestore().collection('users').doc(netid).get()
-                ).data()
+//         try {
+//             for (const netid of assigned) {
+//                 const user = (
+//                     await admin.firestore().collection('users').doc(netid).get()
+//                 ).data()
 
-                if (!user) return
+//                 if (!user) return
 
-                const phone = `+1${user.phone}`
-                const msg = `Hi ${
-                    user.name.split(' ')[0]
-                }, you have been unassigned to "${duty.name}" on ${format(
-                    duty.date.time.toDate(),
-                    'EEEE, MMMM do'
-                )}`
+//                 const phone = `+1${user.phone}`
+//                 const msg = `Hi ${
+//                     user.name.split(' ')[0]
+//                 }, you have been assigned to "${duty.name}" on ${format(
+//                     duty.date.time.toDate(),
+//                     'EEEE, MMMM do'
+//                 )}`
 
-                const message = twilio.messages.create({
-                    to: phone,
-                    body: msg,
-                    messagingServiceSid
-                })
+//                 const message = twilio.messages.create({
+//                     to: phone,
+//                     body: msg,
+//                     messagingServiceSid
+//                 })
 
-                console.log(message)
-            }
-        } catch (err) {
-            console.log('Error notifying users on duty creation.')
-            console.log(err)
-        }
+//                 console.log(message)
+//             }
+//         } catch (err) {
+//             console.log('Error notifying users on duty update.')
+//             console.error(err)
 
-        return
-    })
+//             throw err
+//         }
+
+//         return
+//     })
 
 exports.dutyDeleted = functions.firestore
     .document('duties/{dutyID}')
@@ -139,8 +143,9 @@ exports.dutyDeleted = functions.firestore
                 console.log(message)
             }
         } catch (err) {
-            console.log('Error notifying users on duty creation.')
-            console.log(err)
+            console.log('Error notifying users on duty deletion.')
+            console.error(err)
+            throw err
         }
 
         return

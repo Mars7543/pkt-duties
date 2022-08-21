@@ -77,7 +77,11 @@ const CheckDutiesPage: React.FC<CheckDutiesPageProps> = ({ dutyType }) => {
                 {/* ========= Render Duties =========== */}
                 {/* No Duties */}
                 {!loading && duties && duties.length === 0 && (
-                    <div>No Duties Assigned</div>
+                    <div className='w-full flex flex-col mt-10 items-center'>
+                        <h1 className='text-3xl font-medium text-shadow-light'>
+                            No Duties Assigned
+                        </h1>
+                    </div>
                 )}
 
                 {/* Duties */}
