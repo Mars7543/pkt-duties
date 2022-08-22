@@ -8,6 +8,8 @@ admin.initializeApp({
 exports.dutyCreated = functions.firestore
     .document('duties/{dutyID}')
     .onCreate(async (snapshot, context) => {
+        console.log('DUTY CREATION FUNCTION CALLED')
+
         // ======= TWILIO SETUP ======== \\
         const accountSid = process.env.TWILIO_ACCOUNT_SID
         const authToken = process.env.TWILIO_AUTH_TOKEN
@@ -36,13 +38,14 @@ exports.dutyCreated = functions.firestore
                     'EEEE, MMMM do'
                 )}`
 
-                const message = twilio.messages.create({
+                const message = await twilio.messages.create({
                     to: phone,
-                    body: msg,
-                    messagingServiceSid
+                    body: msg
+                    // messagingServiceSid
                 })
 
                 console.log(message)
+                return
             }
         } catch (err) {
             console.log('Error notifying users on duty creation.')
@@ -50,8 +53,6 @@ exports.dutyCreated = functions.firestore
 
             throw err
         }
-
-        return
     })
 
 // exports.dutyUpdated = functions.firestore
@@ -106,6 +107,8 @@ exports.dutyCreated = functions.firestore
 exports.dutyDeleted = functions.firestore
     .document('duties/{dutyID}')
     .onDelete(async (snapshot, context) => {
+        console.log('DUTY DELETION FUNCTION CALLED')
+
         // ======= TWILIO SETUP ======== \\
         const accountSid = process.env.TWILIO_ACCOUNT_SID
         const authToken = process.env.TWILIO_AUTH_TOKEN
@@ -134,21 +137,20 @@ exports.dutyDeleted = functions.firestore
                     'EEEE, MMMM do'
                 )}`
 
-                const message = twilio.messages.create({
+                const message = await twilio.messages.create({
                     to: phone,
                     body: msg,
                     messagingServiceSid
                 })
 
                 console.log(message)
+                return
             }
         } catch (err) {
             console.log('Error notifying users on duty deletion.')
             console.error(err)
             throw err
         }
-
-        return
     })
 
 // // Create and Deploy Your First Cloud Functions

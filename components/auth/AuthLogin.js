@@ -78,12 +78,7 @@ const AuthLogin = (props) => {
         const notAssigner = assigners && !isAssigner(user)
         const invalidNetid = netid && user.netid !== netid
 
-        if (
-            invalidAssignType ||
-            notAssigner ||
-            (invalidNetid && notAssigner) ||
-            (invalidNetid && !assigners)
-        ) {
+        if (invalidAssignType || (invalidNetid && notAssigner)) {
             toast.error('You do not have permission to access this page.')
             return (
                 <div className='flex flex-col items-center gap-5'>
