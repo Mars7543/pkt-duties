@@ -35,4 +35,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+# cloud function files
+functions/.env
 functions/admin-config.json

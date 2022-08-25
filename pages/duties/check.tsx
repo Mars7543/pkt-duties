@@ -1,11 +1,16 @@
 import AuthLogin from '@components/auth/AuthLogin'
 import { useDutiesByType } from '@lib/hooks'
-import { getDutiesByType, updateUserDutyCredits } from '@lib/queries'
+import {
+    checkDuty,
+    checkOffDuty,
+    getDutiesByType,
+    updateUserDutyCredits
+} from '@lib/queries'
 import { Duty, DutyType } from '@lib/types'
 import { capitalize } from 'lodash'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { format } from 'date-fns'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { TailSpin, ThreeDots } from 'react-loader-spinner'
 import { Switch } from '@headlessui/react'
@@ -38,10 +43,8 @@ interface CheckDutiesPageProps {
 }
 
 const CheckDutiesPage: React.FC<CheckDutiesPageProps> = ({ dutyType }) => {
-    const [enabled, setEnabled] = useState(false)
-    const [filter, setFilter] = useState(false)
-
-    const { loading, error, duties } = useDutiesByType(dutyType, filter)
+    const [showChecked, setShowChecked] = useState(false)
+    const { loading, error, duties } = useDutiesByType(dutyType)
 
     return (
         <main>
@@ -87,53 +90,22 @@ const CheckDutiesPage: React.FC<CheckDutiesPageProps> = ({ dutyType }) => {
                 {/* Duties */}
                 {!loading && duties && duties.length > 0 && (
                     <div className='w-full flex flex-col mt-12 items-center gap-10'>
+                        <button
+                            onClick={() => setShowChecked(!showChecked)}
+                            className={classNames(
+                                'text-2xl text-white box-shadow-light rounded-xl py-3 px-7 bg-blue-400'
+                            )}
+                        >
+                            {showChecked
+                                ? 'Hide Checked-Off Duties'
+                                : 'Show Checked-Off Duties'}
+                        </button>
                         {duties.map((duty, idx) => (
-                            <div
+                            <Duty
                                 key={idx}
-                                className='w-[500px] px-5 py-4 bg-white box-shadow-light flex flex-col items-center divide-y-2'
-                            >
-                                {/* Duty Header */}
-                                <div className='w-full flex pb-3 items-center justify-between'>
-                                    <h2 className='text-2xl font-medium'>
-                                        {duty.name}
-                                    </h2>
-                                    <h2 className='text-2xl font-medium'>
-                                        {format(
-                                            duty.date.time as Date,
-                                            'MMM do'
-                                        )}
-                                    </h2>
-                                </div>
-                                {/* <div className='w-full flex pb-3 items-center justify-between'>
-                                    <h2 className='text-2xl font-medium'>
-                                        {format(
-                                            duty.date.time as Date,
-                                            'MMM do'
-                                        )}
-                                        &nbsp;&nbsp;
-                                        {duty.name}
-                                    </h2>
-
-                                    <CheckDuty />
-                                </div> */}
-
-                                {/* Duty Assigned */}
-                                <div className='w-full pt-3 flex flex-col items-center space-y-3'>
-                                    {Object.keys(duty.assigned_names).map(
-                                        (netid) => (
-                                            <CheckPerson
-                                                key={netid}
-                                                dutyId={duty._id}
-                                                netid={netid}
-                                                name={
-                                                    duty.assigned_names[netid]
-                                                }
-                                                credits={duty.credits[netid]}
-                                            />
-                                        )
-                                    )}
-                                </div>
-                            </div>
+                                duty={duty}
+                                showChecked={showChecked}
+                            />
                         ))}
                     </div>
                 )}
@@ -142,19 +114,104 @@ const CheckDutiesPage: React.FC<CheckDutiesPageProps> = ({ dutyType }) => {
     )
 }
 
-const CheckDuty: React.FC<{ checked?: boolean }> = ({ checked = true }) => {
-    const [enabled, setEnabled] = useState(checked)
+const Duty: React.FC<{
+    duty: Duty
+    showChecked: boolean
+}> = ({ duty, showChecked }) => {
+    const [checked, setChecked] = useState(duty.checked || false)
+    const [hidden, setHidden] = useState(!showChecked && checked)
+    const [animateOut, setAnimateOut] = useState(false)
+    const [animateIn, setAnimateIn] = useState(false)
+
+    const hideDuty = () => {
+        setAnimateIn(false)
+        setAnimateOut(true)
+        setTimeout(() => setHidden(true), 400)
+    }
+
+    const showDuty = () => {
+        setHidden(false)
+        setAnimateOut(true)
+        setTimeout(() => setAnimateIn(true), 75)
+    }
+
+    useEffect(() => {
+        if (checked) {
+            if (!showChecked) hideDuty()
+            else showDuty()
+        }
+    }, [showChecked])
+
+    const updateChecked = (newChecked: boolean) => {
+        const oldChecked = checked
+
+        setChecked(newChecked)
+        checkDuty(duty._id, newChecked).catch((err) => {
+            toast.error('Error checking off duty.')
+            setChecked(oldChecked)
+        })
+
+        const newHidden = !showChecked && newChecked
+        if (newHidden) hideDuty()
+    }
+
+    return (
+        <div
+            className={classNames(
+                'w-[500px] px-5 py-4 bg-white box-shadow-light flex flex-col items-center divide-y-2 transition-opacity duration-500',
+                hidden && 'hidden opacity-0',
+                animateOut && 'opacity-0',
+                animateIn && 'opacity-100'
+            )}
+        >
+            {/* Duty Header */}
+            <div className='w-full flex pb-3 items-center justify-between'>
+                <h2 className='text-2xl font-medium'>
+                    {format(duty.date.time as Date, 'MMM do')}
+                    &nbsp;&nbsp;
+                    {duty.name}
+                </h2>
+
+                <CheckDuty checked={duty.checked} setChecked={updateChecked} />
+            </div>
+
+            {/* Duty Assigned */}
+            <div className='w-full pt-3 flex flex-col items-center space-y-3'>
+                {Object.keys(duty.assigned_names).map((netid) => (
+                    <CheckPerson
+                        key={netid}
+                        dutyId={duty._id}
+                        netid={netid}
+                        name={duty.assigned_names[netid]}
+                        credits={duty.credits[netid]}
+                    />
+                ))}
+            </div>
+        </div>
+    )
+}
+
+const CheckDuty: React.FC<{
+    checked?: boolean
+    setChecked: (checked: boolean) => void
+}> = ({ checked = false, setChecked }) => {
+    const [enabled, setEnabled] = useState<boolean>(checked)
+
+    const toggleDutyChecked = (checked: boolean) => {
+        setEnabled(checked)
+        setChecked(checked)
+    }
 
     return (
         <Switch
             checked={enabled}
-            onChange={setEnabled}
+            onChange={(checked) => toggleDutyChecked(checked)}
             className={classNames(
                 enabled ? 'bg-blue-600' : 'bg-gray-200',
                 'relative inline-flex h-6 w-11 items-center rounded-full transition-all'
             )}
         >
-            <span className='sr-only'>Enable notifications</span>
+            <span className='sr-only'>Check Off Duty</span>
             <span
                 className={`${
                     enabled ? 'translate-x-6' : 'translate-x-1'

@@ -53,6 +53,8 @@ export interface Duty {
     assigned: string[]
     assigned_names: { [index: string]: string }
     credits: { [index: string]: number }
+
+    checked?: boolean
 }
 
 export interface DutyPreview {

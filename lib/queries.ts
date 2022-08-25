@@ -1,6 +1,6 @@
 import { customAlphabet } from "nanoid"
 import { dutiesCollection, firestore, usersCollection } from "./firebase"
-import { query, getDocs, where, orderBy, QuerySnapshot, Timestamp, setDoc, doc, deleteDoc, getDoc, increment, writeBatch, QueryDocumentSnapshot, arrayUnion, arrayRemove } from "firebase/firestore"
+import { query, getDocs, where, orderBy, QuerySnapshot, Timestamp, setDoc, doc, getDoc, increment, writeBatch, QueryDocumentSnapshot, arrayUnion, arrayRemove } from "firebase/firestore"
 import { classCollection } from "./firebase"
 import { Duty, DutyDate, DutyType, User, UsersInClass } from "./types"
 import { format } from "date-fns"
@@ -267,6 +267,11 @@ export const deleteDuty = async (_id: string) => {
     }
 
     await batch.commit()
+}
+
+export const checkDuty = async (_id: string, checked: boolean) => {
+    const dutyRef = doc(dutiesCollection, _id)
+    return await setDoc(dutyRef, { checked }, { merge: true })
 }
 
 export const updateUserDutyCredits = async (_id: string, netid: string, credits: number) => {

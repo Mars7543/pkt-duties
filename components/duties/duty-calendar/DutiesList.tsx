@@ -94,7 +94,7 @@ const DutiesList: React.FC<DutiesListProps> = ({ date, className }) => {
         <div
             className={classNames(
                 className,
-                'flex flex-col items-center h-[376px] pb-4'
+                'flex flex-col items-center h-[400px] pb-4'
             )}
         >
             <h2 className='text-xl font-[500] text-shadow-light'>
@@ -118,7 +118,7 @@ const DutiesList: React.FC<DutiesListProps> = ({ date, className }) => {
                 refresh={refresh}
             />
 
-            <div className='w-full mt-4 overflow-y-auto h-[350px]'>
+            <div className='w-full mt-4 overflow-y-auto h-[385px]'>
                 {days.map((day, dayIdx) => {
                     const dutiesList = duties[dayIdx]
 
