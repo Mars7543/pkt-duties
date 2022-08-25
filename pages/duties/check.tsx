@@ -1,11 +1,6 @@
 import AuthLogin from '@components/auth/AuthLogin'
 import { useDutiesByType } from '@lib/hooks'
-import {
-    checkDuty,
-    checkOffDuty,
-    getDutiesByType,
-    updateUserDutyCredits
-} from '@lib/queries'
+import { checkDuty, getDutiesByType, updateUserDutyCredits } from '@lib/queries'
 import { Duty, DutyType } from '@lib/types'
 import { capitalize } from 'lodash'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'

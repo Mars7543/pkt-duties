@@ -40,12 +40,11 @@ exports.dutyCreated = functions.firestore
 
                 const message = await twilio.messages.create({
                     to: phone,
-                    body: msg
-                    // messagingServiceSid
+                    body: msg,
+                    messagingServiceSid
                 })
 
                 console.log(message)
-                return
             }
         } catch (err) {
             console.log('Error notifying users on duty creation.')
@@ -107,8 +106,6 @@ exports.dutyCreated = functions.firestore
 exports.dutyDeleted = functions.firestore
     .document('duties/{dutyID}')
     .onDelete(async (snapshot, context) => {
-        console.log('DUTY DELETION FUNCTION CALLED')
-
         // ======= TWILIO SETUP ======== \\
         const accountSid = process.env.TWILIO_ACCOUNT_SID
         const authToken = process.env.TWILIO_AUTH_TOKEN
@@ -143,7 +140,6 @@ exports.dutyDeleted = functions.firestore
                     messagingServiceSid
                 })
 
-                console.log(message)
                 return
             }
         } catch (err) {
