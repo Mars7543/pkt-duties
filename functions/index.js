@@ -49,6 +49,8 @@ exports.dutyCreated = functions.firestore
                     if (i !== users.length - 1) msg += '\n'
                 })
 
+                console.log(msg)
+
                 await twilio.messages.create({
                     to: phone,
                     body: msg,
