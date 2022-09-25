@@ -31,7 +31,7 @@ exports.dutyCreated = functions.firestore
 
             users = users.map((user) => user?.data())
 
-            users.forEach(async (user) => {
+            for (const user of users) {
                 if (!user) return
 
                 const phone = `+1${user.phone}`
@@ -56,7 +56,7 @@ exports.dutyCreated = functions.firestore
                     body: msg,
                     messagingServiceSid
                 })
-            })
+            }
         } catch (err) {
             console.log('Error notifying users on duty creation.')
             console.error(err)
