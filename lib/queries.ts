@@ -15,8 +15,8 @@ const genId = (() => {
 
 // ========= USER QUERIES ========== \\
 // const addDutiesToUsers = async () => {
-//     const usersQUery = query(usersCollection)
-//     const user_ids = (await getDocs(usersQUery)).docs.map(d => d.data().netid)
+//     const usersQuery = query(usersCollection)
+//     const user_ids = (await getDocs(usersQuery)).docs.map(d => d.data().netid)
 
 //     const batch = writeBatch(firestore)
 
@@ -31,8 +31,8 @@ const genId = (() => {
 // const sanitizeUsers = async () => {
 //     console.log('starting function')
 
-//     const usersQUery = query(usersCollection)
-//     const users = (await getDocs(usersQUery)).docs.map(d => d.data())
+//     const usersQuery = query(usersCollection)
+//     const users = (await getDocs(usersQuery)).docs.map(d => d.data())
 
 //     for (const user of users) {
 //         if (!user.name || !user.netid || !user.email || !user.phone || user.inHouse === undefined) {
@@ -48,6 +48,20 @@ const genId = (() => {
 //         }
 //     }
 // }
+
+export const getAllNetids = async (): Promise<string[]> => {
+    const q = query(usersCollection)
+    const netids = (await getDocs(q)).docs.map(d => d.data().netid)
+
+    return netids
+}
+
+export const getUserByNetid = async (netid: string): Promise<User | undefined> => {
+    const userRef = doc(usersCollection, netid)
+    const user = (await getDoc(userRef)).data()
+
+    return user
+}
 
 export const getUsersByClass = async (): Promise<UsersInClass[]> => {
     const classesQuery = query(classCollection, orderBy('index', 'asc'))
@@ -68,6 +82,8 @@ export const getUsersByClass = async (): Promise<UsersInClass[]> => {
 }
 
 export const isDutyExempt = (user: User, type: DutyType): boolean => {
+    // return false
+
     // pres or vp
     if (user.position === 'President' || user.position === 'Vice President') return true
     // off campus
@@ -289,3 +305,55 @@ export const updateUserDutyCredits = async (_id: string, netid: string, credits:
 
     await batch.commit()
 }
+
+// ============ MISC QUERIES ============ \\
+// export const resetDB = async () => {
+//     console.log("------ Start DB Reset... ------")
+    
+//     const usersQuery = query(usersCollection)
+//     const users = (await getDocs(usersQuery)).docs
+
+//     const batch = writeBatch(firestore)
+
+//     for (const user of users) {
+//         batch.update(user.ref, {
+//             credits: {
+//                 cleaning: 0,
+//                 social: 0,
+//                 waiter: 0
+//             }
+//         })
+//     }
+
+//     await batch.commit()
+
+//     console.log("------ End DB Reset... ------")
+// }
+
+// export const exemptUsers = async () => {
+//     console.log("------ Start Exempt... ------")
+    
+//     const usersQuery = query(usersCollection)
+//     const users = (await getDocs(usersQuery)).docs
+
+//     const netids = ["web89", "blf65", "dio6", "dp556", "mja256", "nj288", "occ22"]
+
+//     const batch = writeBatch(firestore)
+
+//     for (const user of users) {
+//         let user_data = user.data()
+
+//         if (netids.indexOf(user_data.netid) >= 0) {
+//             batch.update(user.ref, {
+//                 dutyExempt: {
+//                     reason: "Second Semester Senior",
+//                     type: [DutyType.waiter, DutyType.social, DutyType.cleaning]
+//                 }
+//             })
+//         }
+//     }
+
+//     await batch.commit()
+
+//     console.log("------ End Exempt... ------")
+// }

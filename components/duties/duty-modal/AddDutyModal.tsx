@@ -71,6 +71,7 @@ const AddDutyModal: React.FC<AddDutyModalProps> = ({
             toast.success('Duty created succesfully!')
         } catch (err) {
             setDutyError(err)
+            console.log(err)
             toast.error('Error creating duty. Try again later.')
         } finally {
             setCreatingDuty(false)

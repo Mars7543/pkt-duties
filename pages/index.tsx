@@ -6,7 +6,7 @@ import AuthLogin from '@components/auth/AuthLogin'
 import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '@lib/context'
 import { getUserAssignType } from '@lib/helpers'
-import { DutyType, User } from '@lib/types'
+import { DutyType } from '@lib/types'
 import Metatags from '@components/layout/Metatags'
 
 const Home: NextPage = () => {
@@ -23,9 +23,9 @@ const Home: NextPage = () => {
             <Metatags />
             <AuthLogin>
                 <div className='flex flex-col flex-grow justify-center items-center gap-8'>
-                    {/* <Link href={`/`} passHref={true}>
-                        <a className='cursor-auto text-4xl text-shadow-light'>
-                            Edit Profile
+                    {/* <Link href={`/profile/${user?.netid}`} passHref={true}>
+                        <a className='cursor-pointer text-4xl text-shadow-light'>
+                            View Profile
                         </a>
                     </Link> */}
                     <Link href={`/duties/${user?.netid}`} passHref={true}>
